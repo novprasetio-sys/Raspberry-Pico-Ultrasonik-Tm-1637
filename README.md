@@ -60,7 +60,7 @@ class TM1637:
         self.stop()
 
 
-#setelah itu buat kembali file main. py yang berfungsi sebagai file utama eksekusi mikrokontroler
+# setelah itu buat kembali file main. py yang berfungsi sebagai file utama eksekusi mikrokontroler
 # simpan kode ini di raspberry pico dengan nama main. py
 
 from machine import Pin, time_pulse_us
