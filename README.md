@@ -1,11 +1,19 @@
-# Raspberry-Pico-Ultrasonik-Tm-1637
-# Berikut ini adalah cara setup dan debug raspberry pico + ultrasonik + tm 1637
-# berbeda dengan Arduino, micro python tidak mengompile code
-# kode disimpan di raspberry pico sebagai file py
+# Raspberry Pico — Ultrasonik + TM1637 (MicroPython)
 
-# berikut kodenya
-# buat file tm1637.py dan simpan di raspberry pico
+Project ini menjelaskan cara setup dan debugging **Raspberry Pi Pico** menggunakan:
+- Sensor Ultrasonik HC-SR04  
+- Display 7-segment TM1637  
+- MicroPython (tanpa proses compile seperti Arduino)  
 
+Pada MicroPython, kode disimpan sebagai file `.py` di penyimpanan Pico.  
+File utama yang akan dieksekusi otomatis adalah **main.py**.
+
+---
+
+## 📁 File 1 — tm1637.py  
+Buat file bernama **tm1637.py** dan upload ke Pico.
+
+```python
 from machine import Pin
 from time import sleep_us
 
@@ -60,8 +68,8 @@ class TM1637:
         self.stop()
 
 
-# setelah itu buat kembali file main. py yang berfungsi sebagai file utama eksekusi mikrokontroler
-# simpan kode ini di raspberry pico dengan nama main. py
+
+# main.py code
 
 from machine import Pin, time_pulse_us
 import utime
@@ -71,7 +79,7 @@ from tm1637 import TM1637
 TRIG = Pin(3, Pin.OUT)
 ECHO = Pin(2, Pin.IN)
 
-# TM1637 pins (GP4=CLK, GP5=DIO)
+# TM1637 pins (GP4 = CLK, GP5 = DIO)
 tm = TM1637(4, 5)
 
 def get_distance():
@@ -90,9 +98,3 @@ while True:
     print("Jarak:", d)
     tm.show_number(int(d))
     utime.sleep(0.3)
-
-# jalankan pico dengan adapter
-# pico akan membaca sensor dan menampilkan ke 7 segment
-
-
-
