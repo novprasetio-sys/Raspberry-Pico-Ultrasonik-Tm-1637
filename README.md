@@ -69,7 +69,9 @@ class TM1637:
 
 
 
-# main.py code
+
+## 📁 File 2 — main.py  
+Buat file bernama **main.py** dan upload ke Pico.
 
 from machine import Pin, time_pulse_us
 import utime
