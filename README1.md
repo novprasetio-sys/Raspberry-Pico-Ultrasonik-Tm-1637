@@ -39,6 +39,8 @@ Sesuaikan COM port & API Key:
 ## ✨ MicPySer = MicroPython + Python Serial Gateway  
 Versi pertama dari framework IoT ringan berbasis MicroPython dan PySerial.
 
+## Micropython Code
+
 from machine import Pin, time_pulse_us
 import utime
 from tm1637 import TM1637
@@ -66,6 +68,8 @@ while True:
     print(d)           # Kirim float murni ke serial
     tm.show_number(int(d))
     utime.sleep(0.3)
+
+## Python Code
 
 import serial
 import time
