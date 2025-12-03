@@ -8,6 +8,47 @@ Project ini menjelaskan cara setup dan debugging **Raspberry Pi Pico** menggunak
 Pada MicroPython, kode disimpan sebagai file `.py` di penyimpanan Pico.  
 File utama yang akan dieksekusi otomatis adalah **main.py**.
 
+# MicPySer Gateway – Raspberry Pico → Python → Thingspeak
+
+MicPySer Gateway adalah integrasi lengkap antara Raspberry Pi Pico (MicroPython), sensor ultrasonik, TM1637 seven-segment, dan Python sebagai data gateway ke Thingspeak menggunakan PySerial.
+
+## 🔌 Arsitektur Sistem
+
+## 📂 Struktur Project
+### Folder micropython/
+Kode MicroPython untuk:
+- Membaca sensor HC-SR04
+- Menampilkan jarak di TM1637
+- Mengirim data ke serial dalam bentuk *float murni*
+
+### Folder python_gateway/
+Kode Python untuk:
+- Membaca serial COM
+- Menyimpan "last value" terbaru
+- Mengirim nilai terbaru ke Thingspeak setiap 15 detik
+
+## ▶️ Menjalankan Project
+
+### 1. Upload MicroPython ke Pico
+Gunakan Thonny → Upload file main.py ke root Pico.
+
+### 2. Jalankan Python Gateway
+Sesuaikan COM port & API Key:
+
+## 📡 Thingspeak
+- field1 = jarak (cm), nilai terbaru yang dibaca Pico
+
+## 📊 Fitur Utama
+✔ Anti-lag: hanya kirim *nilai terbaru* ke Thingspeak  
+✔ Serial reading cepat, upload lambat (15s)  
+✔ Tidak perlu modifikasi kode MicroPython  
+✔ Akurat & stabil meski sensor cepat berubah  
+
+---
+
+## ✨ MicPySer = MicroPython + Python Serial Gateway  
+Versi pertama dari framework IoT ringan berbasis MicroPython dan PySerial.
+
 ---
 
 ## 📁 File 1 — tm1637.py  
