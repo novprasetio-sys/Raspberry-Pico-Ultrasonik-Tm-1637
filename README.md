@@ -1,13 +1,3 @@
-# Raspberry Pico — Ultrasonik + TM1637 (MicroPython)
-
-Project ini menjelaskan cara setup dan debugging **Raspberry Pi Pico** menggunakan:
-- Sensor Ultrasonik HC-SR04  
-- Display 7-segment TM1637  
-- MicroPython (tanpa proses compile seperti Arduino)  
-
-Pada MicroPython, kode disimpan sebagai file `.py` di penyimpanan Pico.  
-File utama yang akan dieksekusi otomatis adalah **main.py**.
-
 # MicPySer Gateway – Raspberry Pico → Python → Thingspeak
 
 MicPySer Gateway adalah integrasi lengkap antara Raspberry Pi Pico (MicroPython), sensor ultrasonik, TM1637 seven-segment, dan Python sebagai data gateway ke Thingspeak menggunakan PySerial.
