@@ -81,8 +81,8 @@ from tm1637 import TM1637
 TRIG = Pin(3, Pin.OUT)
 ECHO = Pin(2, Pin.IN)
 
-# TM1637 pins (GP4 = CLK, GP5 = DIO)
-tm = TM1637(4, 5)
+# TM1637 pins (CLK=GP4, DIO=GP5)
+tm = TM1637(clk=Pin(4), dio=Pin(5))
 
 def get_distance():
     TRIG.low()
@@ -92,11 +92,11 @@ def get_distance():
     TRIG.low()
 
     duration = time_pulse_us(ECHO, 1, 30000)
-    distance = (duration / 2) / 29.1
+    distance = (duration / 2) / 29.1  # cm
     return distance
 
 while True:
     d = get_distance()
-    print("Jarak:", d)
+    print(d)           # Kirim float murni ke serial
     tm.show_number(int(d))
     utime.sleep(0.3)
