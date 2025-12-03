@@ -143,8 +143,8 @@ while True:
     utime.sleep(0.3)
 
 
+## python code gateway kirim data ke thingspeak
 
-## Python Code
 
 import serial
 import time
@@ -179,4 +179,10 @@ while True:
         last_value = float(raw)
         print("New reading:", last_value)
     except:
-        print("Invalid data:", …
+        print("Invalid data:", raw)
+        continue
+
+    if time.time() - last_upload >= 15:
+        if last_value is not None:
+            upload(last_value)
+            last_upload = time.time()
