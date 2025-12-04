@@ -51,7 +51,6 @@ Save as: pico_doorlock.py
 from machine import Pin
 import time
 
-# --- Pin setup ---
 ir_sensor = Pin(2, Pin.IN, Pin.PULL_UP)
 led_builtin = Pin(25, Pin.OUT)
 buzzer = Pin(4, Pin.OUT)
@@ -81,7 +80,6 @@ def lock_sequence():
     buzzer_beep()
     print("LOCKED")    # dikirim ke GUI
 
-# --- Main loop ---
 while True:
     if ir_sensor.value() == 0 and state == 0:
         unlock_sequence()
@@ -99,10 +97,8 @@ import tkinter as tk
 from tkinter import ttk
 from threading import Thread
 
-# --- Serial Connection ---
 ser = serial.Serial("COM10", 115200, timeout=0.1)
 
-# --- Tkinter GUI ---
 root = tk.Tk()
 root.title("MicPySer • Door Status")
 root.geometry("350x200")
@@ -125,7 +121,7 @@ def read_serial_loop():
         except:
             pass
 
-# Thread agar GUI tidak freeze
+
 thread = Thread(target=read_serial_loop, daemon=True)
 thread.start()
 
