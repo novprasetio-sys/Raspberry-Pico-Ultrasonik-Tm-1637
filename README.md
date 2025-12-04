@@ -1,102 +1,178 @@
-# Raspberry Pico — Ultrasonik + TM1637 (MicroPython)
+MicPySer Embedded – Auto Door Lock System (IR Sensor + Raspberry Pico)
 
-Project ini menjelaskan cara setup dan debugging **Raspberry Pi Pico** menggunakan:
-- Sensor Ultrasonik HC-SR04  
-- Display 7-segment TM1637  
-- MicroPython (tanpa proses compile seperti Arduino)  
+Lightweight • Industrial Concept • Serial-Based Automation
 
-Pada MicroPython, kode disimpan sebagai file `.py` di penyimpanan Pico.  
-File utama yang akan dieksekusi otomatis adalah **main.py**.
+MicPySer Embedded adalah sistem automatic electronic door lock berbasis Raspberry Pico dan MicroPython.
+Sistem ini membaca objek lewat IR sensor, mengaktifkan buzzer, menyalakan LED built-in, mengirimkan status via serial, dan ditampilkan secara real-time melalui GUI Python.
+
+Proyek ini adalah bagian dari ekosistem MicPySer yang berfokus pada komunikasi serial 1 arah maupun 2 arah antara microcontroller dan PC/SBC.
+
 
 ---
 
-## 📁 File 1 — tm1637.py  
-Buat file bernama **tm1637.py** dan upload ke Pico.
+🚀 Fitur
 
-```python
+IR sensor mendeteksi objek → pintu UNLOCK otomatis
+
+LED built-in menyala saat UNLOCK dan mati saat LOCK
+
+Buzzer aktif 3 detik pada proses unlock & lock
+
+Pintu otomatis LOCK kembali setelah 5 detik
+
+Status real-time (UNLOCKED / LOCKED) dikirim ke PC
+
+GUI Python menampilkan status terbaru tanpa lag
+
+Komunikasi stabil via PySerial (COM10 @ 115200)
+
+
+
+---
+
+🛠️ Wiring
+
+Komponen	Raspberry Pico Pin
+
+IR Sensor OUT	GP2
+Buzzer	GP4
+LED Built-in	GP25
+GND	GND
+VCC	5V / 3.3V (sesuai sensor)
+
+
+
+---
+
+📟 Kode MicroPython – Raspberry Pico
+
+Save as: pico_doorlock.py
+
 from machine import Pin
-from time import sleep_us
+import time
 
-SEGMENTS = [0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F]
+# --- Pin setup ---
+ir_sensor = Pin(2, Pin.IN, Pin.PULL_UP)
+led_builtin = Pin(25, Pin.OUT)
+buzzer = Pin(4, Pin.OUT)
 
-class TM1637:
-    def __init__(self, clk, dio, brightness=7):
-        self.clk = Pin(clk, Pin.OUT)
-        self.dio = Pin(dio, Pin.OUT)
-        self.brightness = brightness
+state = 0  # 0=LOCKED, 1=UNLOCKED
+led_builtin.value(0)
+buzzer.value(1)  # inactive
 
-    def start(self):
-        self.dio(1)
-        self.clk(1)
-        self.dio(0)
+def buzzer_beep(duration=3):
+    buzzer.value(0)
+    time.sleep(duration)
+    buzzer.value(1)
 
-    def stop(self):
-        self.clk(0)
-        self.dio(0)
-        self.clk(1)
-        self.dio(1)
+def unlock_sequence():
+    global state
+    state = 1
+    led_builtin.value(1)
+    buzzer_beep()
+    print("UNLOCKED")  # dikirim ke GUI
+    time.sleep(5)      # pintu terbuka selama 5 detik
+    lock_sequence()
 
-    def write_byte(self, data):
-        for i in range(8):
-            self.clk(0)
-            self.dio((data >> i) & 1)
-            self.clk(1)
+def lock_sequence():
+    global state
+    state = 0
+    led_builtin.value(0)
+    buzzer_beep()
+    print("LOCKED")    # dikirim ke GUI
 
-        self.clk(0)
-        self.dio.init(Pin.IN)
-        self.clk(1)
-        ack = self.dio()
-        self.dio.init(Pin.OUT)
-        return ack
-
-    def show_number(self, num):
-        s = "{:0>4}".format(int(num))[-4:]
-        data = [SEGMENTS[int(c)] for c in s]
-
-        self.start()
-        self.write_byte(0x40)
-        self.stop()
-
-        self.start()
-        self.write_byte(0xC0)
-        for d in data:
-            self.write_byte(d)
-        self.stop()
-
-        self.start()
-        self.write_byte(0x88 | self.brightness)
-        self.stop()
-
-
-
-
-## 📁 File 2 — main.py  
-Buat file bernama **main.py** dan upload ke Pico.
-
-from machine import Pin, time_pulse_us
-import utime
-from tm1637 import TM1637
-
-# Ultrasonic pins
-TRIG = Pin(3, Pin.OUT)
-ECHO = Pin(2, Pin.IN)
-
-# TM1637 pins (GP4 = CLK, GP5 = DIO)
-tm = TM1637(4, 5)
-
-def get_distance():
-    TRIG.low()
-    utime.sleep_us(5)
-    TRIG.high()
-    utime.sleep_us(10)
-    TRIG.low()
-
-    duration = time_pulse_us(ECHO, 1, 30000)
-    distance = (duration / 2) / 29.1
-    return distance
-
+# --- Main loop ---
 while True:
-    d = get_distance()
-    print("Jarak:", d)
-    tm.show_number(int(d))
-    utime.sleep(0.3)
+    if ir_sensor.value() == 0 and state == 0:
+        unlock_sequence()
+    time.sleep(0.1)
+
+
+---
+
+🖥️ Kode GUI Python – PC/SBC
+
+Save as: gui_door_status.py
+
+import serial
+import tkinter as tk
+from tkinter import ttk
+from threading import Thread
+
+# --- Serial Connection ---
+ser = serial.Serial("COM10", 115200, timeout=0.1)
+
+# --- Tkinter GUI ---
+root = tk.Tk()
+root.title("MicPySer • Door Status")
+root.geometry("350x200")
+
+status_label = ttk.Label(root, text="WAITING...", font=("Arial", 28), foreground="gray")
+status_label.pack(pady=40)
+
+def update_status(text):
+    if text == "UNLOCKED":
+        status_label.config(text="UNLOCKED", foreground="green")
+    elif text == "LOCKED":
+        status_label.config(text="LOCKED", foreground="red")
+
+def read_serial_loop():
+    while True:
+        try:
+            if ser.in_waiting:
+                line = ser.readline().decode().strip()
+                update_status(line)
+        except:
+            pass
+
+# Thread agar GUI tidak freeze
+thread = Thread(target=read_serial_loop, daemon=True)
+thread.start()
+
+root.mainloop()
+
+
+---
+
+▶️ Cara Menjalankan
+
+1. Upload kode MicroPython
+
+Buka Thonny
+
+Pilih interpreter “Raspberry Pi Pico”
+
+Upload & Run pico_doorlock.py
+
+
+2. Install PySerial di PC
+
+pip install pyserial
+
+3. Jalankan GUI
+
+python gui_door_status.py
+
+GUI akan langsung membaca status UNLOCKED atau LOCKED setiap kali Pico mengirimkan print ke serial.
+
+
+---
+
+🔄 Alur Kerja Sistem
+
+1. IR mendeteksi objek → state berubah menjadi UNLOCKED
+
+
+2. LED menyala, buzzer aktif 3 detik
+
+
+3. GUI menampilkan UNLOCKED (green)
+
+
+4. Setelah 5 detik, Pico mengunci kembali otomatis
+
+
+5. Buzzer aktif 3 detik → kirim LOCKED
+
+
+6. GUI menampilkan LOCKED (red)
