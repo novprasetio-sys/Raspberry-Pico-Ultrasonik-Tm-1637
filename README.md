@@ -19,8 +19,10 @@ Buzzer	GP4
 LED Built-in	GP25
 GND	GND
 VCC	5V / 3.3V (sesuai sensor)
+
 📟 Kode MicroPython – Raspberry Pico
 pico_doorlock.py
+
 from machine import Pin
 import time
 
@@ -57,8 +59,10 @@ while True:
     if ir_sensor.value() == 0 and state == 0:
         unlock_sequence()
     time.sleep(0.1)
+
 🖥️ Kode GUI Python – PC/SBC
 gui_door_status.py
+
 import serial
 import tkinter as tk
 from tkinter import ttk
@@ -92,6 +96,7 @@ thread = Thread(target=read_serial_loop, daemon=True)
 thread.start()
 
 root.mainloop()
+
 ▶️ Cara Menjalankan
 1. Upload kode MicroPython
 - Buka Thonny
