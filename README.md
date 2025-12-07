@@ -1,63 +1,36 @@
-MicPySer Embedded – Auto Door Lock System (IR Sensor + Raspberry Pico)
-
+MicPySer Embedded – Auto Door Lock System
 Lightweight • Industrial Concept • Serial-Based Automation
 
-MicPySer Embedded adalah sistem automatic electronic door lock berbasis Raspberry Pico dan MicroPython.
-Sistem ini membaca objek lewat IR sensor, mengaktifkan buzzer, menyalakan LED built-in, mengirimkan status via serial, dan ditampilkan secara real-time melalui GUI Python.
-
-Proyek ini adalah bagian dari ekosistem MicPySer yang berfokus pada komunikasi serial 1 arah maupun 2 arah antara microcontroller dan PC/SBC.
-
-
----
+MicPySer Embedded adalah sistem automatic electronic door lock berbasis Raspberry Pico dan MicroPython. Sistem ini membaca objek lewat IR sensor, mengaktifkan buzzer, menyalakan LED built-in, mengirimkan status via serial, dan ditampilkan secara real-time melalui GUI Python.
 
 🚀 Fitur
-
-IR sensor mendeteksi objek → pintu UNLOCK otomatis
-
-LED built-in menyala saat UNLOCK dan mati saat LOCK
-
-Buzzer aktif 3 detik pada proses unlock & lock
-
-Pintu otomatis LOCK kembali setelah 5 detik
-
-Status real-time (UNLOCKED / LOCKED) dikirim ke PC
-
-GUI Python menampilkan status terbaru tanpa lag
-
-Komunikasi stabil via PySerial (COM10 @ 115200)
-
-
-
----
+- IR sensor mendeteksi objek → pintu UNLOCK otomatis
+- LED built-in menyala saat UNLOCK dan mati saat LOCK
+- Buzzer aktif 3 detik pada proses unlock & lock
+- Pintu otomatis LOCK kembali setelah 5 detik
+- Status real-time (UNLOCKED / LOCKED) dikirim ke PC
+- GUI Python menampilkan status terbaru tanpa lag
+- Komunikasi stabil via PySerial (COM10 @ 115200)
 
 🛠️ Wiring
-
 Komponen	Raspberry Pico Pin
-
 IR Sensor OUT	GP2
 Buzzer	GP4
 LED Built-in	GP25
 GND	GND
 VCC	5V / 3.3V (sesuai sensor)
-
-
-
----
-
 📟 Kode MicroPython – Raspberry Pico
-
-Save as: pico_doorlock.py
-
+pico_doorlock.py
 from machine import Pin
 import time
 
 ir_sensor = Pin(2, Pin.IN, Pin.PULL_UP)
 led_builtin = Pin(25, Pin.OUT)
 buzzer = Pin(4, Pin.OUT)
+state = 0 # 0=LOCKED, 1=UNLOCKED
 
-state = 0  # 0=LOCKED, 1=UNLOCKED
 led_builtin.value(0)
-buzzer.value(1)  # inactive
+buzzer.value(1) # inactive
 
 def buzzer_beep(duration=3):
     buzzer.value(0)
@@ -69,8 +42,8 @@ def unlock_sequence():
     state = 1
     led_builtin.value(1)
     buzzer_beep()
-    print("UNLOCKED")  # dikirim ke GUI
-    time.sleep(5)      # pintu terbuka selama 5 detik
+    print("UNLOCKED") # dikirim ke GUI
+    time.sleep(5) # pintu terbuka selama 5 detik
     lock_sequence()
 
 def lock_sequence():
@@ -78,20 +51,14 @@ def lock_sequence():
     state = 0
     led_builtin.value(0)
     buzzer_beep()
-    print("LOCKED")    # dikirim ke GUI
+    print("LOCKED") # dikirim ke GUI
 
 while True:
     if ir_sensor.value() == 0 and state == 0:
         unlock_sequence()
     time.sleep(0.1)
-
-
----
-
 🖥️ Kode GUI Python – PC/SBC
-
-Save as: gui_door_status.py
-
+gui_door_status.py
 import serial
 import tkinter as tk
 from tkinter import ttk
@@ -121,54 +88,25 @@ def read_serial_loop():
         except:
             pass
 
-
 thread = Thread(target=read_serial_loop, daemon=True)
 thread.start()
 
 root.mainloop()
-
-
----
-
 ▶️ Cara Menjalankan
-
 1. Upload kode MicroPython
-
-Buka Thonny
-
-Pilih interpreter “Raspberry Pi Pico”
-
-Upload & Run pico_doorlock.py
-
-
+- Buka Thonny
+- Pilih interpreter “Raspberry Pi Pico”
+- Upload & Run pico_doorlock.py
 2. Install PySerial di PC
-
-pip install pyserial
-
+- `pip install pyserial`
 3. Jalankan GUI
-
-python gui_door_status.py
-
-GUI akan langsung membaca status UNLOCKED atau LOCKED setiap kali Pico mengirimkan print ke serial.
-
-
----
+- `python gui_door_status.py`
+- GUI akan langsung membaca status UNLOCKED atau LOCKED setiap kali Pico mengirimkan print ke serial.
 
 🔄 Alur Kerja Sistem
-
 1. IR mendeteksi objek → state berubah menjadi UNLOCKED
-
-
 2. LED menyala, buzzer aktif 3 detik
-
-
 3. GUI menampilkan UNLOCKED (green)
-
-
 4. Setelah 5 detik, Pico mengunci kembali otomatis
-
-
 5. Buzzer aktif 3 detik → kirim LOCKED
-
-
 6. GUI menampilkan LOCKED (red)
