@@ -113,3 +113,52 @@ thread = Thread(target=read_serial_loop, daemon=True)
 thread.start()
 
 root.mainloop()
+
+
+
+▶️ Cara Menjalankan
+
+1. Upload kode MicroPython ke Pico
+
+Buka Thonny
+
+Pilih interpreter Raspberry Pi Pico
+
+Upload & Run pico_doorlock.py
+
+
+
+2. Install PySerial di PC
+
+pip install pyserial
+
+
+3. Jalankan GUI
+
+python gui_door_status.py
+
+GUI akan langsung membaca status UNLOCKED atau LOCKED setiap kali Pico mengirimkan print ke serial.
+
+
+
+
+---
+
+🔄 Alur Kerja Sistem
+
+1. IR sensor mendeteksi objek → state berubah menjadi UNLOCKED
+
+
+2. LED menyala, buzzer aktif 3 detik
+
+
+3. GUI menampilkan UNLOCKED (green)
+
+
+4. Setelah 5 detik, Pico mengunci kembali otomatis
+
+
+5. Buzzer aktif 3 detik → kirim LOCKED
+
+
+6. GUI menampilkan LOCKED (red)
