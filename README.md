@@ -95,6 +95,8 @@ thread = Thread(target=read_serial_loop, daemon=True)
 thread.start()
 
 root.mainloop()
+
+
 ▶️ Cara Menjalankan
 1. Upload kode MicroPython
 - Buka Thonny
