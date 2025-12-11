@@ -12,14 +12,13 @@ MicPySer Embedded adalah sistem automatic electronic door lock berbasis Raspberr
 - GUI Python menampilkan status terbaru tanpa lag
 - Komunikasi stabil via PySerial (COM10 @ 115200)
 
-🛠️ Wiring
-Komponen	Raspberry Pico Pin
+🛠️ Wiring Komponen
+Raspberry Pico	Pin
 IR Sensor OUT	GP2
 Buzzer	GP4
 LED Built-in	GP25
 GND	GND
 VCC	5V / 3.3V (sesuai sensor)
-
 📟 Kode MicroPython – Raspberry Pico
 pico_doorlock.py
 
@@ -96,7 +95,6 @@ thread = Thread(target=read_serial_loop, daemon=True)
 thread.start()
 
 root.mainloop()
-
 ▶️ Cara Menjalankan
 1. Upload kode MicroPython
 - Buka Thonny
